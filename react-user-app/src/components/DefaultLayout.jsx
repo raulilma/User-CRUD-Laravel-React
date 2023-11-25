@@ -32,7 +32,7 @@ export default function DefaultLayout() {
       </aside>
       <div className="content">
         <header>
-          <div>Header</div>
+          <div>User App</div>
           <div>
             {user.name}
             <a href="#" onClick={onLogout} className="btn-logout">
