@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import axiosClient from "../axios-client";
 import { useStateContext } from "../contexts/ContextProvider";
@@ -9,6 +9,7 @@ export default function Register() {
   const passwordRef = useRef();
   const passwordConfirmationRef = useRef();
 
+  const [errors, setErrors] = useState(null);
   const { setUser, setToken } = useStateContext();
 
   const onSubmit = (ev) => {
@@ -26,9 +27,10 @@ export default function Register() {
         setUser(data.user);
       })
       .catch((err) => {
+        console.log(err);
         const response = err.response;
         if (response && response.status == 422) {
-          console.log(response.data.errors);
+          setErrors(response.data.errors);
         }
       });
   };
@@ -37,6 +39,13 @@ export default function Register() {
       <div className="form">
         <form onSubmit={onSubmit}>
           <h1 className="title">Register to the App!</h1>
+          {errors && (
+            <div className="alert">
+              {Object.keys(errors).map((key) => (
+                <p key={key}>{errors[key][0]}</p>
+              ))}
+            </div>
+          )}
           <input ref={nameRef} placeholder="Full Name" />
           <input ref={emailRef} type="email" placeholder="Email" />
           <input ref={passwordRef} type="password" placeholder="Password" />
