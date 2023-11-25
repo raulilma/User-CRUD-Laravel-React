@@ -15,15 +15,14 @@ export default function DefaultLayout() {
   };
 
   useEffect(() => {
-    if (!token) {
-      setUser(null);
-      return <Navigate to="/login" />;
-    }
-
     axiosClient.get("/user").then(({ data }) => {
       setUser(data);
     });
-  }, [token, setUser]);
+  }, [setUser]);
+
+  if (!token) {
+    return <Navigate to="/login" />;
+  }
 
   return (
     <div id="defaultLayout">
