@@ -4,10 +4,14 @@ import { useEffect } from "react";
 import axiosClient from "../axios-client";
 
 export default function DefaultLayout() {
-  const { user, token, setUser } = useStateContext();
+  const { user, token, setUser, setToken } = useStateContext();
 
   const onLogout = (ev) => {
     ev.preventDefault();
+    axiosClient.post("/logout").then(() => {
+      setUser({});
+      setToken(null);
+    });
   };
 
   useEffect(() => {
