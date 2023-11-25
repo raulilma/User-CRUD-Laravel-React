@@ -27,7 +27,6 @@ export default function Register() {
         setUser(data.user);
       })
       .catch((err) => {
-        console.log(err);
         const response = err.response;
         if (response && response.status == 422) {
           setErrors(response.data.errors);
