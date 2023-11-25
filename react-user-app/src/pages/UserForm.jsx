@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axiosClient from "../axios-client";
+import { useStateContext } from "../contexts/ContextProvider";
 
 export default function UserForm() {
   const { id } = useParams();
-  const [loading, setLoading] = useState(false);
-
-  const [errors, setErrors] = useState(null);
+  const navigate = useNavigate();
   const [user, setUser] = useState({
     id: null,
     name: "",
@@ -14,6 +13,9 @@ export default function UserForm() {
     password: "",
     password_confirmation: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState(null);
+  const { setNotification } = useStateContext();
 
   if (id) {
     useEffect(() => {
@@ -32,6 +34,35 @@ export default function UserForm() {
 
   const onSubmit = (ev) => {
     ev.preventDefault();
+    if (user.id) {
+      axiosClient
+        .put(`/users/${user.id}`, user)
+        .then(() => {
+          setNotification("User was successfully updated!");
+          navigate("/users");
+        })
+        .catch((err) => {
+          const response = err.response;
+          if (response && response.status === 422) {
+            setErrors(response.data.errors);
+          }
+        });
+    } else {
+      axiosClient
+        .post(`/users`, user)
+        .then(() => {
+          setNotification("User was successfully created!");
+          navigate("/users");
+        })
+        .catch((err) => {
+          const response = err.response;
+          if (response && response.status === 422) {
+            if (response.data.errors) {
+              setErrors(response.data.errors);
+            }
+          }
+        });
+    }
   };
 
   return (
@@ -39,7 +70,7 @@ export default function UserForm() {
       {user.id && <h1>Update User: {user.name}</h1>}
       {!user.id && <h1>New User: {user.name}</h1>}
       <div className="card animated fadeInDown">
-        {loading && <div className="loading">Loading...</div>}
+        {loading && <div className="text-center">Loading...</div>}
         {errors && (
           <div className="alert">
             {Object.keys(errors).map((key) => (
@@ -55,15 +86,18 @@ export default function UserForm() {
               placeholder="Name"
             />
             <input
+              type="email"
               value={user.email}
               onChange={(ev) => setUser({ ...user, email: ev.target.value })}
               placeholder="Email"
             />
             <input
+              type="password"
               onChange={(ev) => setUser({ ...user, password: ev.target.value })}
               placeholder="Password"
             />
             <input
+              type="password"
               onChange={(ev) =>
                 setUser({ ...user, password_confirmation: ev.target.value })
               }
